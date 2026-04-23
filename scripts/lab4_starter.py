@@ -17,7 +17,9 @@ class PController:
         assert u_min < u_max, "u_min should be less than u_max"
         # Initialize variables here
         ######### Your code starts here #########
-
+        self.kP = kP
+        self.u_min = u_min
+        self.u_max = u_max
         ######### Your code ends here #########
 
     def control(self, err, t):
@@ -27,8 +29,13 @@ class PController:
 
         # Compute control action here
         ######### Your code starts here #########
+        def return_clamped(val):
+            return max(self.u_min, min(val, self.u_max))
 
+        u = (self.kP * err)
+        return return_clamped(u)
         ######### Your code ends here #########
+
 
 # PD controller class
 class PDController:
@@ -37,11 +44,19 @@ class PDController:
     and rate of change of error (derivative action).
     """
 
-    def __init__(self, kP, kD, u_min, u_max):
+    def __init__(self, kP, kD, kS, u_min, u_max):
         assert u_min < u_max, "u_min should be less than u_max"
         # Initialize variables here
         ######### Your code starts here #########
-
+        self.kP = kP
+        self.kD = kD
+        self.kS = kS
+        self.err_dif = 0
+        self.err_prev = 0
+        self.err_hist = queue.Queue(self.kS)
+        self.t_prev = 0
+        self.u_min = u_min
+        self.u_max = u_max
         ######### Your code ends here #########
 
     def control(self, err, t):
@@ -51,7 +66,17 @@ class PDController:
 
         # Compute control action here
         ######### Your code starts here #########
+        def return_clamped(val):
+            return max(self.u_min, min(val, self.u_max))
 
+        if self.err_hist.full():
+            self.err_hist.get()
+        self.err_hist.put(err)
+        self.err_dif = err - self.err_prev
+        u = (self.kP * err) + (self.kD * self.err_dif / dt)
+        self.err_prev = err
+        self.t_prev = t
+        return return_clamped(u)
         ######### Your code ends here #########
 
 
@@ -64,9 +89,9 @@ class RobotController:
         self.cliff_sub = rospy.Subscriber("/sensor_state", SensorState, self.sensor_state_callback, queue_size=1)
         self.robot_ctrl_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
 
-        # Define PD controller for wall following here
+        # Define PD controller for lateral control here
         ######### Your code starts here #########
-
+        self.pd_lat = PDController(1.0, 0.1, 10, -2.84, 2.84)
         ######### Your code ends here #########
 
         self.desired_distance = desired_distance  # Desired distance from the wall
@@ -75,8 +100,10 @@ class RobotController:
     def sensor_state_callback(self, state: SensorState):
         raw = state.cliff
         ######### Your code starts here #########
-        # conversion from raw sensor values to distance. Use equation from Lab 2
-
+        # see https://www.desmos.com/calculator/ixyjrqipjd
+        a = 122.485
+        b = -1.09922
+        distance = a * (raw**b)
         ######### Your code ends here #########
         # print(f"raw: {raw}\tdistance: {distance}")
         self.ir_distance = distance
@@ -94,9 +121,13 @@ class RobotController:
 
             ctrl_msg = Twist()
 
-            # using PD controller, compute and send motor commands
             ######### Your code starts here #########
-
+            # cte = self.desired_distance - self.ir_distance # <-- NOTE: this way is incorrect
+            cte = self.ir_distance - self.desired_distance  # correct
+            tstamp = time()
+            u = self.pd_lat.control(cte, tstamp)
+            ctrl_msg.linear.x = 0.2
+            ctrl_msg.angular.z = u
             ######### Your code ends here #########
 
             self.robot_ctrl_pub.publish(ctrl_msg)

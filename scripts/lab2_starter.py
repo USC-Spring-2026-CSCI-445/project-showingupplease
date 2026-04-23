@@ -27,8 +27,10 @@ class Cliff:
         distance = 0.0  # TODO: fit function mapping raw to distance
 
         ######### Your code starts here #########
-        # calculation from raw sensor value to distance (Step 3.3 of lab)
-        
+        # see https://www.desmos.com/calculator/ixyjrqipjd
+        a = 122.485
+        b = -1.09922
+        distance = a * (raw**b)
         ######### Your code ends here #########
 
         print(f"raw: {raw}\tdistance: {distance}")

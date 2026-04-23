@@ -40,10 +40,14 @@ class OdometryPublisher:
         dt = (self.current_time - self.last_time).to_sec()
 
         ######### Your code starts here #########
-        # add odometry equations to calculate robot's self.x, self.y, self.theta given encoder values
+        delta_x = (self.vx * math.cos(self.theta) - self.vy * math.sin(self.theta)) * dt
+        delta_y = (self.vx * math.sin(self.theta) + self.vy * math.cos(self.theta)) * dt
+        delta_th = self.vth * dt
 
-        ######### Your code ends here #########
-        
+        self.x += delta_x
+        self.y += delta_y
+        self.theta += delta_th
+
         odom_quat = tf.transformations.quaternion_from_euler(0, 0, self.theta)
 
         odom = Odometry()
@@ -61,7 +65,7 @@ class OdometryPublisher:
         odom.twist.twist.linear.x = self.vx
         odom.twist.twist.linear.y = self.vy
         odom.twist.twist.angular.z = self.vth
-
+        ######### Your code ends here #########
 
         self.odom_pub.publish(odom)
         self.last_time = self.current_time

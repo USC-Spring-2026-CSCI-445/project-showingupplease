@@ -27,12 +27,9 @@ class OdometryPublisher:
         self.last_left_encoder = None
         self.last_right_encoder = None
 
-        ######### Your code starts here #########
-        # TurtleBot3 Burger parameters from manual (https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/)
-        self.TICK_TO_RAD =
-        self.wheel_radius =
-        self.wheel_separation =
-        ######### Your code ends here #########
+        self.TICK_TO_RAD = 0.001533981
+        self.wheel_radius = 0.033
+        self.wheel_separation = 0.160
 
         self.current_time = rospy.Time.now()
         self.last_time = rospy.Time.now()
@@ -55,9 +52,20 @@ class OdometryPublisher:
         dt = (self.current_time - self.last_time).to_sec()
 
         ######### Your code starts here #########
-        # add odometry equations to calculate robot's self.x, self.y, self.theta given encoder values
+        delta_left = (self.left_encoder - self.last_left_encoder) * self.TICK_TO_RAD
+        delta_right = (self.right_encoder - self.last_right_encoder) * self.TICK_TO_RAD
 
-        ######### Your code ends here #########
+        self.last_left_encoder = self.left_encoder
+        self.last_right_encoder = self.right_encoder
+
+        d_left = delta_left * self.wheel_radius
+        d_right = delta_right * self.wheel_radius
+        delta_s = (d_right + d_left) / 2.0
+        delta_theta = (d_right - d_left) / self.wheel_separation
+
+        self.x += delta_s * math.cos(self.theta + delta_theta / 2.0)
+        self.y += delta_s * math.sin(self.theta + delta_theta / 2.0)
+        self.theta += delta_theta
 
         odom_quat = tf.transformations.quaternion_from_euler(0, 0, self.theta)
 
@@ -75,6 +83,7 @@ class OdometryPublisher:
         odom.twist.twist = Twist()
         odom.twist.twist.linear.x = delta_s / dt
         odom.twist.twist.angular.z = delta_theta / dt
+        ######### Your code ends here #########
 
         self.odom_pub.publish(odom)
         self.last_time = self.current_time
