@@ -686,7 +686,7 @@ if __name__ == "__main__":
     num_particles = 200
     translation_variance = 0.003
     rotation_variance = 0.03
-    measurement_variance = 0.35
+    measurement_variance = 0.45
     particle_filter = ParticleFilter(map_, num_particles, translation_variance, rotation_variance, measurement_variance)
     controller = Controller(particle_filter)
 
