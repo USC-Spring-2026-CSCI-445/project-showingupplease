@@ -13,8 +13,8 @@ from sensor_msgs.msg import LaserScan
 from tf.transformations import euler_from_quaternion
 
 # Import your existing implementations
-from lab8_9 import Map, ParticleFilter, angle_to_neg_pi_to_pi  # :contentReference[oaicite:2]{index=2}
-from lab10 import RrtPlanner, PIDController as WaypointPID, GOAL_THRESHOLD  # :contentReference[oaicite:3]{index=3}
+from lab8_9_starter import Map, ParticleFilter, angle_to_neg_pi_to_pi  # :contentReference[oaicite:2]{index=2}
+from lab10_starter import RrtPlanner, PIDController as WaypointPID, GOAL_THRESHOLD  # :contentReference[oaicite:3]{index=3}
 
 
 class PFRRTController:
@@ -183,6 +183,16 @@ class PFRRTController:
         
         ######### Your code starts here #########
 
+        if (self._pf.map_.closest_distance(self.current_position("theta")) < 0.2){
+            self.move_forward(-0.2)
+            self.rotate_in_place(1.570796)
+        } else {
+            self.move_forward(0.2)
+        }
+
+        self.take_measurements()
+
+
         ######### Your code ends here #########
 
         
@@ -196,6 +206,8 @@ class PFRRTController:
         """
         ######### Your code starts here #########
 
+        pass
+
         ######### Your code ends here #########
 
     # ----------------------------------------------------------------------
@@ -207,6 +219,8 @@ class PFRRTController:
         Keep updating PF along the way.
         """
         ######### Your code starts here #########
+
+        pass
 
         ######### Your code ends here #########
 
