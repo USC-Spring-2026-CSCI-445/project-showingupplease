@@ -187,7 +187,8 @@ class PFRRTController:
         rate = rospy.Rate(1.0)  # explore at ~1 Hz loop
         max_steps = 400
         rotation_attempts = 0
-        move_distance = 0.25  # move farther per step
+        move_distance = 0.25
+        obstacle_distance = 0.28
 
         for step in range(max_steps):
             if rospy.is_shutdown():
@@ -229,7 +230,7 @@ class PFRRTController:
                 front_range = ranges[zero_idx]
 
             # decide "too close" based on this sector only
-            if len(front_sector) > 0 and min(front_sector) < 0.28:
+            if len(front_sector) > 0 and min(front_sector) < obstacle_distance:
                 rospy.loginfo("Too close to obstacle, backing up & rotating.")
                 self.forward_action(-(move_distance/2))
                 self.rotate_in_place(math.pi/2)
