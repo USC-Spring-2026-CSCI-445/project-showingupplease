@@ -232,7 +232,7 @@ class PFRRTController:
             # decide "too close" based on this sector only
             if len(front_sector) > 0 and min(front_sector) < obstacle_distance:
                 rospy.loginfo("Too close to obstacle, backing up & rotating.")
-                self.forward_action(-(move_distance/2))
+                self.move_forward(-(move_distance/2))
                 self.rotate_in_place(math.pi/2)
                 rotation_attempts += 1
                 rate.sleep()
