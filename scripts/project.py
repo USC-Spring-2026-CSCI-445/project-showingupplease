@@ -333,10 +333,10 @@ if __name__ == "__main__":
 
     # Build map + PF + RRT
     map_obj = Map(obstacles, map_aabb)
-    num_particles = 200
+    num_particles = 250
     translation_variance = 0.003
     rotation_variance = 0.03
-    measurement_variance = 0.35
+    measurement_variance = 0.42
 
     pf = ParticleFilter(
         map_obj,
