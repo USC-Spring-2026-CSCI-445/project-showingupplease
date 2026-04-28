@@ -306,8 +306,8 @@ class PFRRTController:
 		self._planner.visualize_graph(graph)
 		self._planner.visualize_plan(plan)
 		
-		rospy.loginfo(f"RRT generated {len(plan)} waypoints from " 
-			      f"({x_est:.2f}, {y_est:.2f}) to ({goal['x']:.2f}, {goal['y']:.2f}).")
+		#rospy.loginfo(f"RRT generated {len(plan)} waypoints from " f"({x_est:.2f}, {y_est:.2f}) to ({goal['x']:.2f}, {goal['y']:.2f}).")
+		rospy.loginfo(f"RRT generated {len(plan)} waypoints from "f"({x_est:.2f}, {y_est:.2f}) to ({goal['x']:.2f}, {goal['y']:.2f}).")
 
         ######### Your code ends here #########
 
