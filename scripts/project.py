@@ -289,25 +289,25 @@ class PFRRTController:
         ######### Your code starts here #########
 
         #1: start position form the particle filter estimate
-	x_est, y_est, theta_est = self._pf.get_estimate()
-	start = {"x": x_est, "y": y_est}
-
-	#2: goal is passed in from the map JSON (see __init__)
-	goal = self.goal_position
-
-	#3: run RRT; generate_plan returns (plan, graph)
-	plan, graph = self._planner.generate_plan(start, goal)
-
-	#4: save the plan for follow_plan to consume, reset waypoint idx
-	self.plan = plan
-	self.current_wp_idx = 0
-
-	#5 **NOTE** remove when done; visualize for debugging in RViz
-	self._planner.visualize_graph(graph)
-	self._planner.visualize_plan(plan)
+		x_est, y_est, theta_est = self._pf.get_estimate()
+		start = {"x": x_est, "y": y_est}
 	
-	rospy.loginfo(f"RRT generated {len(plan)} waypoints from " 
-		      f"({x_est:.2f}, {y_est:.2f}) to ({goal['x']:.2f}, {goal['y']:.2f}).")
+		#2: goal is passed in from the map JSON (see __init__)
+		goal = self.goal_position
+	
+		#3: run RRT; generate_plan returns (plan, graph)
+		plan, graph = self._planner.generate_plan(start, goal)
+	
+		#4: save the plan for follow_plan to consume, reset waypoint idx
+		self.plan = plan
+		self.current_wp_idx = 0
+	
+		#5 **NOTE** remove when done; visualize for debugging in RViz
+		self._planner.visualize_graph(graph)
+		self._planner.visualize_plan(plan)
+		
+		rospy.loginfo(f"RRT generated {len(plan)} waypoints from " 
+			      f"({x_est:.2f}, {y_est:.2f}) to ({goal['x']:.2f}, {goal['y']:.2f}).")
 
         ######### Your code ends here #########
 
