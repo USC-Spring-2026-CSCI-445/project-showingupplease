@@ -186,8 +186,8 @@ class PFRRTController:
         rate = rospy.Rate(1.0)  # explore at ~1 Hz loop
         max_steps = 400
         rotation_attempts = 0
-        move_distance = 0.25
-        obstacle_distance = 0.45
+        move_distance = 0.12
+        obstacle_distance = 0.22
         front_window_deg = 35.0
 
         for step in range(max_steps):
@@ -268,7 +268,7 @@ class PFRRTController:
                     if abs(predicted_front - front_range) < 0.25:
                         sensor_ok = True
 
-                if std_dev < 0.12:
+                if std_dev < 0.18:
                     rospy.loginfo("Particle filter converged (std < 0.12).")
                     break
 
