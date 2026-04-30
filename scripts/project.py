@@ -211,7 +211,7 @@ class PFRRTController:
 
                 # --- FRONT WINDOW ONLY ---
                 # we look at ~ +/- 25 degrees in front of robot
-                front_window_deg = 15.0
+                front_window_deg = 25.0
                 low_angle = -math.radians(front_window_deg)
                 high_angle = math.radians(front_window_deg)
 
