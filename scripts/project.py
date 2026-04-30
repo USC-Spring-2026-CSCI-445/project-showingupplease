@@ -152,9 +152,9 @@ class PFRRTController:
         num_ranges = len(ranges)
 
         mid_idx = num_ranges // 2
-        offset = int(25.0 / (angle_increment * 180.0 / math.pi))  # 15 degrees offset
+        offset = int(35.0 / (angle_increment * 180.0 / math.pi))  # 15 degrees offset
 
-        indices = [max(0, min(num_ranges - 1, mid_idx + i)) for i in (-offset, 0, offset)]
+        indices = [max(0, min(num_ranges - 1, mid_idx + i)) for i in (-offset, (-offset/2), 0, (offset/2), offset)]
         measurements = []
 
         for idx in indices:
@@ -188,7 +188,7 @@ class PFRRTController:
         rotation_attempts = 0
         move_distance = 0.25
         obstacle_distance = 0.3
-        front_window_deg = 25.0
+        front_window_deg = 35.0
 
         for step in range(max_steps):
             if rospy.is_shutdown():
@@ -236,7 +236,6 @@ class PFRRTController:
                 self.rotate_in_place(math.pi/2)
                 rotation_attempts += 1
                 rate.sleep()
-                continue
 
             # --- Main motion policy --- 
             else:
@@ -416,7 +415,7 @@ if __name__ == "__main__":
 
     # Build map + PF + RRT
     map_obj = Map(obstacles, map_aabb)
-    num_particles = 250
+    num_particles = 100
     translation_variance = 0.003
     rotation_variance = 0.03
     measurement_variance = 0.42
