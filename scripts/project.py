@@ -152,7 +152,7 @@ class PFRRTController:
         num_ranges = len(ranges)
 
         mid_idx = num_ranges // 2
-        offset = int(15.0 / (angle_increment * 180.0 / math.pi))  # 15 degrees offset
+        offset = int(25.0 / (angle_increment * 180.0 / math.pi))  # 15 degrees offset
 
         indices = [max(0, min(num_ranges - 1, mid_idx + i)) for i in (-offset, 0, offset)]
         measurements = []
@@ -188,6 +188,7 @@ class PFRRTController:
         rotation_attempts = 0
         move_distance = 0.25
         obstacle_distance = 0.3
+        front_window_deg = 25.0
 
         for step in range(max_steps):
             if rospy.is_shutdown():
@@ -211,7 +212,6 @@ class PFRRTController:
 
                 # --- FRONT WINDOW ONLY ---
                 # we look at ~ +/- 25 degrees in front of robot
-                front_window_deg = 25.0
                 low_angle = -math.radians(front_window_deg)
                 high_angle = math.radians(front_window_deg)
 
@@ -222,7 +222,7 @@ class PFRRTController:
                 if low_idx > high_idx:
                     low_idx, high_idx = high_idx, low_idx
 
-                front_sector = [r for r in ranges[low_idx:high_idx + 1] if not np.isinf(r)]
+                front_sector = [r for r in ranges[low_idx:high_idx + 1] if not np.isinf(r) and r > 0.05]
 
                 # also get the exact forward beam
                 zero_idx = int(round((0.0 - angle_min) / angle_inc))
