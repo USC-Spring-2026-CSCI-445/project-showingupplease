@@ -196,11 +196,12 @@ class PFRRTController:
             # --- Prevent getting stuck spinning ---
             if rotation_attempts > 5:
                 rospy.loginfo("Too many rotations; moving forward to escape.")
-                self.forward_action(0.3)
+                self.move_forward(0.3)
                 rotation_attempts = 0
 
             # Get front range safely
             front_range = None
+            front_sector = []
 
             if self.laserscan is not None:
                 angle_min = self.laserscan.angle_min
@@ -268,8 +269,8 @@ class PFRRTController:
                     if abs(predicted_front - front_range) < 0.25:
                         sensor_ok = True
 
-                if std_dev < 0.12 and sensor_ok:
-                    rospy.loginfo("Particle filter converged (std < 0.12 and sensor matched).")
+                if std_dev < 0.12:
+                    rospy.loginfo("Particle filter converged (std < 0.12).")
                     break
 
             rate.sleep()
@@ -315,9 +316,77 @@ class PFRRTController:
         Keep updating PF along the way.
         """
         ######### Your code starts here #########
-
-        pass
-
+        
+        if self.plan is None or len(self.plan) == 0:
+            rospy.logwarn("No plan to follow!")
+            return
+        
+        self.current_wp_idx = 0
+        rate = rospy.Rate(10)  # 10 Hz control loop
+        
+        rospy.loginfo(f"Starting to follow plan with {len(self.plan)} waypoints")
+        
+        while self.current_wp_idx < len(self.plan) and not rospy.is_shutdown():
+            
+            if self.current_position is None:
+                rospy.logwarn("No odometry data yet")
+                rate.sleep()
+                continue
+            
+            # Get current waypoint
+            waypoint = self.plan[self.current_wp_idx]
+            
+            # Calculate errors to waypoint
+            dx = waypoint["x"] - self.current_position["x"]
+            dy = waypoint["y"] - self.current_position["y"]
+            distance_error = sqrt(dx ** 2 + dy ** 2)
+            
+            # Calculate desired heading
+            desired_theta = atan2(dy, dx)
+            angle_error = desired_theta - self.current_position["theta"]
+            
+            # Normalize angle error to [-pi, pi]
+            while angle_error > pi:
+                angle_error -= 2 * pi
+            while angle_error < -pi:
+                angle_error += 2 * pi
+            
+            # Use PID controllers to get command velocities
+            t_now = rospy.get_time()
+            cmd_linear_vel = self.linear_pid.control(distance_error, t_now)
+            cmd_angular_vel = self.angular_pid.control(angle_error, t_now)
+            
+            # Publish control command
+            twist = Twist()
+            twist.linear.x = cmd_linear_vel
+            twist.angular.z = cmd_angular_vel
+            self.cmd_pub.publish(twist)
+            
+            # Log status
+            rospy.loginfo(
+                f"WP {self.current_wp_idx}/{len(self.plan)-1} | "
+                f"dist_err: {distance_error:.3f} | angle_err: {angle_error:.3f} | "
+                f"v: {cmd_linear_vel:.3f} | w: {cmd_angular_vel:.3f}"
+            )
+            
+            # Check if reached current waypoint
+            if distance_error < GOAL_THRESHOLD:
+                rospy.loginfo(f"Reached waypoint {self.current_wp_idx}")
+                self.current_wp_idx += 1
+            
+            # Take PF measurements to keep localizing while following
+            self.take_measurements()
+            self._pf.visualize_particles()
+            self._pf.visualize_estimate()
+            
+            rate.sleep()
+        
+        # Stop the robot when done
+        twist = Twist()
+        self.cmd_pub.publish(twist)
+        
+        rospy.loginfo("Finished following plan!")
+        
         ######### Your code ends here #########
 
     # ----------------------------------------------------------------------
