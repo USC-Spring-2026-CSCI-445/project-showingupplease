@@ -187,7 +187,7 @@ class PFRRTController:
         max_steps = 400
         rotation_attempts = 0
         move_distance = 0.25
-        obstacle_distance = 0.3
+        obstacle_distance = 0.45
         front_window_deg = 35.0
 
         for step in range(max_steps):
