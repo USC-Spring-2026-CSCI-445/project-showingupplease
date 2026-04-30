@@ -154,7 +154,7 @@ class PFRRTController:
         mid_idx = num_ranges // 2
         offset = int(35.0 / (angle_increment * 180.0 / math.pi))  # 15 degrees offset
 
-        indices = [max(0, min(num_ranges - 1, mid_idx + i)) for i in (-offset, (-offset/2), 0, (offset/2), offset)]
+        indices = [max(0, min(num_ranges - 1, mid_idx + i)) for i in (-offset, 0, offset)]
         measurements = []
 
         for idx in indices:
