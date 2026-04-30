@@ -211,7 +211,7 @@ class PFRRTController:
 
                 # --- FRONT WINDOW ONLY ---
                 # we look at ~ +/- 25 degrees in front of robot
-                front_window_deg = 25.0
+                front_window_deg = 15.0
                 low_angle = -math.radians(front_window_deg)
                 high_angle = math.radians(front_window_deg)
 
@@ -231,7 +231,7 @@ class PFRRTController:
 
             # decide "too close" based on this sector only
             if len(front_sector) > 0 and min(front_sector) < obstacle_distance:
-                rospy.loginfo("Too close to obstacle, backing up & rotating.")
+                rospy.loginfo("Distance", min(front_sector),"to obstacle, backing up & rotating.")
                 self.move_forward(-((move_distance)/2))
                 self.rotate_in_place(math.pi/2)
                 rotation_attempts += 1
